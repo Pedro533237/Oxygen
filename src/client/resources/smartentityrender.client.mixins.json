@@ -1,0 +1,28 @@
+{
+	"required": true,
+	"package": "com.SmartEntityRender.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"refmap": "smartentityrender.refmap.json",
+	"client": [
+		"EntityRenderManagerMixin",
+		"CloudRendererMixin",
+		"SignTextCullingMixin",
+		"RainSnowFrustumCullingMixin",
+		"BeaconBeamFrustumCullingMixin",
+		"BlockStateAggressiveCullingMixin",
+		"ItemFrameCustomRendererMixin",
+		"PaintingCullingMixin",
+		"EndGatewayBeamFrustumCullingMixin",
+		"DebugHudMixin",
+		"InGameHudFpsOverlayMixin",
+		"EntityRendererShadowMixin",
+		"video_settings.VideoSettingsSidebarMixin",
+		"memory.MultipartModelComponentMixin",
+		"memory.ModelVariantMixin",
+		"memory.BakedQuadFactoryMixin",
+		"video_settings.addons.zoom.CameraZoomMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

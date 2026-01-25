@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "oxygen",
+	"version": "${version}",
+	"name": "Oxygen",
+	"description": "Advanced Entity Culling system to improve FPS by intelligently hiding entities outside view, at far distances, or behind blocks.",
+	"authors": [
+		"7arbe"
+	],
+	"contact": {
+		"homepage": "https://github.com/7arbe/oxygen",
+		"issues": "https://github.com/7arbe/oxygen/issues"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/oxygen/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.SmartEntityRender.SmartEntityRender"
+		],
+		"client": [
+			"com.SmartEntityRender.SmartEntityRenderClient"
+		]
+	},
+	"mixins": [
+		"smartentityrender.mixins.json",
+		{
+			"config": "smartentityrender.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

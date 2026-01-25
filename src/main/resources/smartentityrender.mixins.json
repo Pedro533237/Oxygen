@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "com.SmartEntityRender.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"refmap": "smartentityrender.refmap.json",
+	"mixins": [
+		"memory.StateMemoryMixin",
+		"memory.ExperienceOrbMergeMixin",
+		"memory.AbstractBlockStateShapeMixin",
+		"memory.LockHelperMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

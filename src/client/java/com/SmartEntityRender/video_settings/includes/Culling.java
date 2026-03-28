@@ -111,6 +111,19 @@ public final class Culling {
         widgets.add(register.apply(blockStateAggressiveCullingToggle));
         currentY += VideoSettings.CONTROL_H + VideoSettings.CONTROL_GAP;
 
+        var chunkRenderFaceCacheToggle = new Display.ToggleButton(
+                x,
+                currentY,
+                width,
+                VideoSettings.CONTROL_H,
+                Text.literal("Chunk Face Cache (Sodium-like)"),
+                () -> Config.getInstance().isChunkRenderFaceCache(),
+                value -> Config.getInstance().setChunkRenderFaceCache(value));
+        chunkRenderFaceCacheToggle.setTooltip(Tooltip.of(Text.literal(
+                "Cache repeated block face visibility checks during chunk rebuilds\n• ON: Lower CPU cost in chunk rendering\n• OFF: Vanilla per-face checks")));
+        widgets.add(register.apply(chunkRenderFaceCacheToggle));
+        currentY += VideoSettings.CONTROL_H + VideoSettings.CONTROL_GAP;
+
         var moddedBlockStateCullingToggle = new Display.ToggleButton(
                 x,
                 currentY,

@@ -21,7 +21,7 @@ import java.util.Set;
 public class Config {
     private static final Logger LOGGER = LoggerFactory.getLogger("SmartEntityRender");
     private static final String CONFIG_FILE = "config/smartentityrender.properties";
-    private static final int CONFIG_VERSION = 10;
+    private static final int CONFIG_VERSION = 11;
 
     private static Config INSTANCE;
 
@@ -49,6 +49,7 @@ public class Config {
     private boolean weatherFrustumCulling = true;
     private boolean beaconBeamFrustumCulling = true;
     private boolean blockStateCullingAggressive = false;
+    private boolean chunkRenderFaceCache = true;
     private boolean moddedBlockStateCulling = true;
     private final Set<String> blockStateDontCullList = new HashSet<>();
     private boolean itemFrameCustomRenderer = true;
@@ -179,6 +180,8 @@ public class Config {
             beaconBeamFrustumCulling = Boolean.parseBoolean(props.getProperty("beaconBeamFrustumCulling", "true"));
             blockStateCullingAggressive = Boolean.parseBoolean(
                     props.getProperty("blockStateCullingAggressive", "false"));
+            chunkRenderFaceCache = Boolean.parseBoolean(
+                    props.getProperty("chunkRenderFaceCache", "true"));
             moddedBlockStateCulling = Boolean.parseBoolean(
                     props.getProperty("moddedBlockStateCulling", "true"));
             blockStateDontCullList.clear();
@@ -317,6 +320,7 @@ public class Config {
             props.setProperty("weatherFrustumCulling", String.valueOf(weatherFrustumCulling));
             props.setProperty("beaconBeamFrustumCulling", String.valueOf(beaconBeamFrustumCulling));
             props.setProperty("blockStateCullingAggressive", String.valueOf(blockStateCullingAggressive));
+            props.setProperty("chunkRenderFaceCache", String.valueOf(chunkRenderFaceCache));
             props.setProperty("moddedBlockStateCulling", String.valueOf(moddedBlockStateCulling));
             props.setProperty("blockStateDontCullList", String.join(",", sortedList(blockStateDontCullList)));
             props.setProperty("itemFrameCustomRenderer", String.valueOf(itemFrameCustomRenderer));
@@ -557,6 +561,10 @@ public class Config {
         return blockStateCullingAggressive;
     }
 
+    public boolean isChunkRenderFaceCache() {
+        return chunkRenderFaceCache;
+    }
+
     public boolean isModdedBlockStateCulling() {
         return moddedBlockStateCulling;
     }
@@ -751,6 +759,11 @@ public class Config {
 
     public void setBlockStateCullingAggressive(boolean value) {
         this.blockStateCullingAggressive = value;
+        save();
+    }
+
+    public void setChunkRenderFaceCache(boolean value) {
+        this.chunkRenderFaceCache = value;
         save();
     }
 

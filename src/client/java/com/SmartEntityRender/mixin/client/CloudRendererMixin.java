@@ -50,6 +50,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Arrays;
+
 @Mixin(CloudRenderer.class)
 public abstract class CloudRendererMixin {
     @Inject(method = "renderClouds(ILnet/minecraft/client/option/CloudRenderMode;FLnet/minecraft/util/math/Vec3d;JF)V", at = @At("HEAD"))
@@ -221,6 +223,31 @@ class BeaconBeamFrustumCullingMixin {
 
 @Mixin(Block.class)
 class BlockStateAggressiveCullingMixin {
+    private static final int SER_FACE_CACHE_SIZE = 1 << 14;
+    private static final int SER_FACE_CACHE_MASK = SER_FACE_CACHE_SIZE - 1;
+    private static final ThreadLocal<FaceCache> SER_FACE_CACHE = ThreadLocal.withInitial(FaceCache::new);
+
+    @Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
+    private static void ser$chunkFaceCacheLookup(BlockState state,
+            BlockState neighborState,
+            Direction direction,
+            CallbackInfoReturnable<Boolean> cir) {
+        if (!Config.getInstance().isChunkRenderFaceCache()
+                || state == null
+                || neighborState == null
+                || direction == null) {
+            return;
+        }
+
+        FaceCache cache = SER_FACE_CACHE.get();
+        long signature = ser$cacheSignature(state, neighborState, direction);
+        int index = (int) signature & SER_FACE_CACHE_MASK;
+        if (cache.valid[index] && cache.keys[index] == signature) {
+            cir.setReturnValue(cache.values[index]);
+            cir.cancel();
+        }
+    }
+
     @Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
     private static void ser$aggressiveBlockStateCulling(BlockState state,
             BlockState neighborState,
@@ -420,6 +447,48 @@ class BlockStateAggressiveCullingMixin {
 
         cir.setReturnValue(false);
     }
+
+    @Inject(method = "shouldDrawSide", at = @At("RETURN"))
+    private static void ser$chunkFaceCacheStore(BlockState state,
+            BlockState neighborState,
+            Direction direction,
+            CallbackInfoReturnable<Boolean> cir) {
+        if (!Config.getInstance().isChunkRenderFaceCache()
+                || state == null
+                || neighborState == null
+                || direction == null) {
+            return;
+        }
+
+        FaceCache cache = SER_FACE_CACHE.get();
+        long signature = ser$cacheSignature(state, neighborState, direction);
+        int index = (int) signature & SER_FACE_CACHE_MASK;
+        cache.keys[index] = signature;
+        cache.values[index] = cir.getReturnValueZ();
+        cache.valid[index] = true;
+    }
+
+    private static long ser$cacheSignature(BlockState state, BlockState neighborState, Direction direction) {
+        long stateHash = System.identityHashCode(state);
+        long neighborHash = System.identityHashCode(neighborState);
+        long dirHash = direction.ordinal();
+
+        long signature = 0x9E3779B97F4A7C15L;
+        signature ^= stateHash + 0x9E3779B97F4A7C15L + (signature << 6) + (signature >>> 2);
+        signature ^= neighborHash + 0xBF58476D1CE4E5B9L + (signature << 6) + (signature >>> 2);
+        signature ^= dirHash + 0x94D049BB133111EBL + (signature << 6) + (signature >>> 2);
+        return signature;
+    }
+
+    private static final class FaceCache {
+        final long[] keys = new long[SER_FACE_CACHE_SIZE];
+        final boolean[] values = new boolean[SER_FACE_CACHE_SIZE];
+        final boolean[] valid = new boolean[SER_FACE_CACHE_SIZE];
+
+        FaceCache() {
+            Arrays.fill(valid, false);
+        }
+    }
 }
 
 @Mixin(ItemFrameEntityRenderer.class)
@@ -529,6 +598,7 @@ class ItemFrameCustomRendererMixin {
             }
         }
     }
+
 }
 
 @Mixin(PaintingEntityRenderer.class)
